@@ -1,0 +1,120 @@
+# Installation instructions for the packages TSD, SimradRaw, sonR, echoIBM, cpplot3d(2016-11-29)
+# R (>= 3.2.3)
+
+# This bundle contains the following 5 pakcages
+# "TSD" (reading and writing TSD-files (Time Step Data format), and a number of functions used by the other packages)
+# "SimradRaw" (reading and writing raw files from Simrad)
+# "sonR" (converting raw files to the TSD format and reading from "events" of acoustic data)
+# "echoIBM" (simulation of sonar and echosounder data)
+# "cpplot3d" (plotting in 2-D and 3-D)
+
+
+# Install the packages that cpplot3d depends on. Note that this updates all the specified packages to the latest (binary) version:
+dep.pck <- c("akima", "ccaPP", "data.table", "fields", "fpc", "gdata", "gsl", "rgl", "XML")
+install.packages(dep.pck, repos="http://cran.us.r-project.org")
+
+# On Windows you will need Rtools to complete the installations. Check if you have this by running Sys.getenv('PATH'), and go to https://cran.r-project.org/bin/windows/Rtools/ to install Rtools if not.
+
+# The packages needs to be installed in the order as listed above, using the following commands:
+setwd(INSERT_PATH_TO_DOWNLOADED_PACKAGE_FILES_HERE)
+install.packages("TSD_1.0.tar.gz", repos=NULL, type="source")
+install.packages("SimradRaw_1.0.tar.gz", repos=NULL, type="source")
+install.packages("sonR_1.0.tar.gz", repos=NULL, type="source")
+install.packages("echoIBM_1.0.tar.gz", repos=NULL, type="source")
+install.packages("cpplot3d_1.0.tar.gz", repos=NULL, type="source")
+# To load the packages all in one go, use
+library(cpplot3d)
+
+# Define the location of the acoustic data:
+# This is a directory in which the following catalogue structure should be used: 
+# CRUISECODE / "Events" / EVENTNAME / SOUNDERNAME / DATATYPE
+# Here CRUISECODE is the name of the cruise, such as S2016104 for an IMR cruise, 
+# "Events" is a directory holding events recorded on the cruise, 
+# EVENTNAME is the name of an event, containing a sting with the character "E" followed by a number of the event, such as "E004", 
+# SOUNDERNAME is a four character name of the acoustic instrument, such as EK60, SU90 or WBAT, 
+# DATATYPE is the type of data, usually one of "raw" and "tsd"
+
+sonR::Acoustics_datasets_directory(INSERT_PATH_TO_ACOUSTIC_DATA_HERE)
+
+# If you are going to simulate sonar and echosounder data, define the following in the same manner:
+# echoIBM::echoIBM_datasets_directory(INSERT_PATH_TO_SIMULATED_DATA_HERE)
+
+# Example code for the package cpplot3d:
+
+# Put some Simrad raw files in a directory such as S2016104 / Events / E001 / EK60 / raw, and define this as rawEvent in R.
+# The run the following command to convert the raw files to TSD files:
+EKRaw2TSD(rawEvent)
+
+# Define the path to the TSD data as tsdEvent, and plot an echogram:
+system.time(cplot2d.event(tsdEvent, t=1:200, xaxis="t", breaks=-82:-30, freq=38000, grid=FALSE, zlim=c(-100,0)))
+# The data from the last plot are stored, so that replotting is faster:
+system.time(cplot2d.event(tsdEvent, t=1:200, xaxis="t", breaks=-82:-30, freq=38000, grid=FALSE, zlim=c(-100,0)))
+
+# Plotting with grid=TRUE is faster (uses grid::grid.raster rather than graphics::image), but all pings are plotted with identical pixel width so that the image may be distorted. The parameteren 'tol' defines the tolerance of this deistortion in such a way that if there are any time differences between pings exceeding the median by more than 'tol', grid is set to FALSE.
+system.time(cplot2d.event(tsdEvent, t=1:200, xaxis="t", breaks=-82:-30, freq=38000, grid=TRUE, zlim=c(-100,0)))
+
+
+# Plot all frequencies in one window. This may fail due to too large figure margins, which can be solved by using a large window:
+par(mfrow=c(1,6), mar=ones(4))
+system.time(cplot2d.event(tsdEvent, t=1:200, xaxis="t", breaks=-82:-30, freq="all", grid=TRUE, zlim=c(-100,0)))
+
+
+# Plot as a function of log-distance:
+par(mfrow=c(1,1))
+system.time(cplot2d.event(tsdEvent, t=1:200, xaxis="d", breaks=-82:-30, freq=38000, grid=TRUE, zlim=c(-100,0)))
+
+# Add legend on the color scale, and start at 0 meters
+system.time(cplot2d.event(tsdEvent, t=1:200, xaxis="d", breaks=-82:-30, freq=38000, grid=TRUE, zlim=c(-100,0), xlab="Distance (m)", x0="start", las=1, legend.args=list( text="Sv", cex=1.5, side=3, line=2)))
+# The same with kilometers (unit="km"):
+system.time(cplot2d.event(tsdEvent, t=1:200, xaxis="d", breaks=-82:-30, freq=38000, grid=TRUE, zlim=c(-100,0), xlab="Distance (m)", x0="start", las=1, legend.args=list( text="Sv", cex=1.5, side=3, line=2)))
+
+# Plot with time on the x-axis, and date only at unique dates:
+system.time(cplot2d.event(tsdEvent, t=1:200, xaxis="t", breaks=-82:-30, freq=38000, grid=TRUE, zlim=c(-100,0), xlab="Distance (m)", las=1))
+# The same with dates on all tick marks and vertical labels and less ticks on the x-axis:
+par(mar=c(7, par()$mar[2:4]))
+system.time(cplot2d.event(tsdEvent, t=1:200, xaxis="t", breaks=-82:-30, freq=38000, grid=TRUE, zlim=c(-100,0), xlab="Distance (m)", las=2, date="all", nticksx=5))
+
+
+
+# Compress for faster plotting (0.1 nmi along the vessel track and 1 meter in depth):
+tsdEventCompr1 <- compr.event(tsdEvent, xres=1852/10, zres=1)$event
+system.time(cplot2d.event(tsdEventCompr1, t=1:200, xaxis="t", breaks=-82:-30, freq=38000, grid=FALSE, zlim=c(-100,0)))
+read.event(tsdEventCompr1, var="numt")
+
+# Compress for faster plotting (30 seconds and 1 meter in depth):
+tsdEventCompr2 <- compr.event(tsdEvent, tres=30, zres=1)$event
+system.time(cplot2d.event(tsdEventCompr2, t=1:200, xaxis="t", breaks=-82:-30, freq=38000, grid=FALSE, zlim=c(-100,0)))
+read.event(tsdEventCompr2, var="numt")
+
+
+
+
+
+# Read the data from an event of TSD files:
+?read.event
+
+# Read Sv (mvbs) and sv (vbsc) data:
+d <- read.event(tsdEvent, t=1:6, var=c("mvbs", "vbsc", "voxels"))
+# Get description of frequently used variables:
+info.TSD(labl.TSD("a")) # Acoustic variables
+info.TSD(labl.TSD("vx")) # Voxel variables (position, volume)
+info.TSD(labl.TSD("v")) # Vessel variables
+info.TSD(labl.TSD("rb")) # (Relevant) beams variables
+
+
+# These are arrays with dimension [samples, beams, pings]:
+str(d)
+hist(d$mvbs)
+# Plot one ping of the first frequency:
+plot(d$mvbs[,2,1], type="l")
+# The same along depth:
+plot(d$mvbs[,2,1], d$pszx[,2,1], type="l")
+
+summary(c(d$mvbs))
+summary(c(d$vbsc))
+
+# Plot pixel positions (chosing the first frequency, since all beams have the same positions):
+plot(d$psyx[,,1], d$pszx[,,1])
+
+
+
