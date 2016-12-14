@@ -1,4 +1,4 @@
-# Installation instructions for the packages TSD, SimradRaw, sonR, echoIBM, cpplot3d(2016-11-29)
+# Installation instructions for the packages TSD, SimradRaw, sonR, echoIBM, cpplot3d(2016-12-14)
 # R (>= 3.2.3)
 
 # This bundle contains the following 5 pakcages
@@ -16,17 +16,14 @@ install.packages(dep.pck, repos="http://cran.us.r-project.org")
 # On Windows you will need Rtools to complete the installations. Check if you have this by running Sys.getenv('PATH'), and go to https://cran.r-project.org/bin/windows/Rtools/ to install Rtools if not.
 
 # The packages needs to be installed in the order as listed above, using the following commands:
-install.packages("https://github.com/arnejohannesholmin/echoIBM/raw/master/TSD_1.0.tar.gz", repos=NULL, type="source")
-install.packages("https://github.com/arnejohannesholmin/echoIBM/raw/master/SimradRaw_1.0.tar.gz", repos=NULL, type="source")
-install.packages("https://github.com/arnejohannesholmin/echoIBM/raw/master/sonR_1.0.tar.gz", repos=NULL, type="source")
-install.packages("https://github.com/arnejohannesholmin/echoIBM/raw/master/echoIBM_1.0.tar.gz", repos=NULL, type="source")
-install.packages("https://github.com/arnejohannesholmin/echoIBM/raw/master/cpplot3d_1.0.tar.gz", repos=NULL, type="source")
-
+setwd(INSERT_PATH_TO_DOWNLOADED_PACKAGE_FILES_HERE)
+install.packages("TSD_1.0.tar.gz", repos=NULL, type="source")
+install.packages("SimradRaw_1.0.tar.gz", repos=NULL, type="source")
+install.packages("sonR_1.0.tar.gz", repos=NULL, type="source")
+install.packages("echoIBM_1.0.tar.gz", repos=NULL, type="source")
+install.packages("cpplot3d_1.0.tar.gz", repos=NULL, type="source")
 # To load the packages all in one go, use
 library(cpplot3d)
-
-
-### Examples of converting and plotting sonar data: ###
 
 # Define the location of the acoustic data:
 # This is a directory in which the following catalogue structure should be used: 
