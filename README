@@ -1,4 +1,4 @@
-# Installation instructions for the packages TSD, SimradRaw, sonR, echoIBM, cpplot3d(2016-12-14)
+# Installation instructions for the packages TSD, SimradRaw, sonR, echoIBM, cpplot3d(2017-03-02)
 # R (>= 3.2.3)
 
 # This bundle contains the following 5 pakcages
@@ -10,17 +10,17 @@
 
 
 # Install the packages that cpplot3d depends on. Note that this updates all the specified packages to the latest (binary) version:
-dep.pck <- c("akima", "ccaPP", "data.table", "fields", "fpc", "gdata", "gsl", "rgl", "XML")
+dep.pck <- c("akima", "ccaPP", "data.table", "fields", "fpc", "gdata", "gsl", "pbapply", "rgl", "XML")
 install.packages(dep.pck, repos="http://cran.us.r-project.org")
 
 # On Windows you will need Rtools to complete the installations. Check if you have this by running Sys.getenv('PATH'), and go to https://cran.r-project.org/bin/windows/Rtools/ to install Rtools if not.
 
 # The packages needs to be installed in the order as listed above, using the following commands:
-install.packages("https://github.com/arnejohannesholmin/echoIBM/raw/master/TSD_1.0.tar.gz", repos=NULL, type="source")
-install.packages("https://github.com/arnejohannesholmin/echoIBM/raw/master/SimradRaw_1.0.tar.gz", repos=NULL, type="source")
-install.packages("https://github.com/arnejohannesholmin/echoIBM/raw/master/sonR_1.0.tar.gz", repos=NULL, type="source")
-install.packages("https://github.com/arnejohannesholmin/echoIBM/raw/master/echoIBM_1.0.tar.gz", repos=NULL, type="source")
-install.packages("https://github.com/arnejohannesholmin/echoIBM/raw/master/cpplot3d_1.0.tar.gz", repos=NULL, type="source")
+install.packages("https://github.com/arnejohannesholmin/echoIBM/blob/master/TSD_1.0.tar.gz?raw=true", repos=NULL, type="source")
+install.packages("https://github.com/arnejohannesholmin/echoIBM/blob/master/SimradRaw_1.0.tar.gz?raw=true", repos=NULL, type="source")
+install.packages("https://github.com/arnejohannesholmin/echoIBM/blob/master/sonR_1.0.tar.gz?raw=true", repos=NULL, type="source")
+install.packages("https://github.com/arnejohannesholmin/echoIBM/blob/master/echoIBM_1.0.tar.gz?raw=true", repos=NULL, type="source")
+install.packages("https://github.com/arnejohannesholmin/echoIBM/blob/master/cpplot3d_1.0.tar.gz?raw=true", repos=NULL, type="source")
 # To load the packages all in one go, use
 library(cpplot3d)
 
