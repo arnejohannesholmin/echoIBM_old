@@ -1,4 +1,4 @@
-# Installation instructions for the packages TSD, SimradRaw, sonR, echoIBM, cpplot3d(2017-03-03)
+# Installation instructions for the packages TSD, SimradRaw, sonR, echoIBM, cpplot3d(2017-04-05)
 # R (>= 3.2.3)
 
 # This bundle contains the following 5 pakcages
@@ -10,7 +10,7 @@
 
 
 # Install the packages that cpplot3d depends on. Note that this updates all the specified packages to the latest (binary) version:
-dep.pck <- c("akima", "ccaPP", "data.table", "fields", "fpc", "gdata", "gsl", "pbapply", "rgl", "XML")
+dep.pck <- c("grid", "parallel", "tools")
 install.packages(dep.pck, repos="http://cran.us.r-project.org")
 
 # On Windows you will need Rtools to complete the installations. Check if you have this by running Sys.getenv('PATH'), and go to https://cran.r-project.org/bin/windows/Rtools/ to install Rtools if not.
@@ -38,13 +38,53 @@ sonR::Acoustics_datasets_directory(INSERT_PATH_TO_ACOUSTIC_DATA_HERE)
 # If you are going to simulate sonar and echosounder data, define the following in the same manner:
 # echoIBM::echoIBM_datasets_directory(INSERT_PATH_TO_SIMULATED_DATA_HERE)
 
-# Example code for the package cpplot3d:
+########## Examples: ##########
+
+##### Examples for the package SimradRaw (reading Simrad files) and sonR (converting to TSD files (see below) for faster processing): #####
+
+# You can read Simrad raw files directly into R using the function readEKRaw(). 
+# Read the first 4 pings:
+dat4 <- readEKRaw(f, t=1:4)
+# Read the all pings:
+datAll <- readEKRaw(f, t="all")
+
+# However, when working with large amounts of data it may be benificial to use the functionality in the sonR package, which converts the Simrad files to the TSD (Time Step Data) format, which is a simple binary format that can be used to save and read data organized in time steps, possibly with different dimension in each time step. 
 
 # Put some Simrad raw files in a directory such as S2016104 / Events / E001 / EK60 / raw, and define this as rawEvent in R.
 # The run the following command to convert the raw files to TSD files:
 EKRaw2TSD(rawEvent)
 
-# Define the path to the TSD data as tsdEvent, and plot an echogram:
+# Define the path to the TSD data as tsdEvent, and read the data from the event:
+?read.event
+
+# Read Sv (mvbs) and sv (vbsc) data:
+d <- read.event(tsdEvent, t=1:6, var=c("mvbs", "vbsc", "voxels"))
+# Get description of frequently used variables:
+info.TSD(labl.TSD("a")) # Acoustic variables
+info.TSD(labl.TSD("vx")) # Voxel variables (position, volume)
+info.TSD(labl.TSD("v")) # Vessel variables
+info.TSD(labl.TSD("rb")) # (Relevant) beams variables
+
+# These are arrays with dimension [samples, beams, pings]:
+str(d)
+hist(d$mvbs)
+# Plot one ping of the first frequency:
+plot(d$mvbs[,2,1], type="l")
+# The same along depth:
+plot(d$mvbs[,2,1], d$pszx[,2,1], type="l")
+
+summary(c(d$mvbs))
+summary(c(d$vbsc))
+
+# Plot pixel positions (chosing the first frequency, since all beams have the same positions):
+plot(d$psyx[,,1], d$pszx[,,1])
+
+
+##### Examples for the package cpplot3d (2-D and 3-D plotting): #####
+
+### If your data are echosounder data, 2-D plotting is appropriate: ###
+
+# Plot a 2-D echogram:
 system.time(cplot2d.event(tsdEvent, t=1:200, xaxis="t", breaks=-82:-30, freq=38000, grid=FALSE, zlim=c(-100,0)))
 # The data from the last plot are stored, so that replotting is faster:
 system.time(cplot2d.event(tsdEvent, t=1:200, xaxis="t", breaks=-82:-30, freq=38000, grid=FALSE, zlim=c(-100,0)))
@@ -86,34 +126,9 @@ system.time(cplot2d.event(tsdEventCompr2, t=1:200, xaxis="t", breaks=-82:-30, fr
 read.event(tsdEventCompr2, var="numt")
 
 
+### If your data are from a multibeam system 3-D plotting is appropriate: ###
 
-
-
-# Read the data from an event of TSD files:
-?read.event
-
-# Read Sv (mvbs) and sv (vbsc) data:
-d <- read.event(tsdEvent, t=1:6, var=c("mvbs", "vbsc", "voxels"))
-# Get description of frequently used variables:
-info.TSD(labl.TSD("a")) # Acoustic variables
-info.TSD(labl.TSD("vx")) # Voxel variables (position, volume)
-info.TSD(labl.TSD("v")) # Vessel variables
-info.TSD(labl.TSD("rb")) # (Relevant) beams variables
-
-
-# These are arrays with dimension [samples, beams, pings]:
-str(d)
-hist(d$mvbs)
-# Plot one ping of the first frequency:
-plot(d$mvbs[,2,1], type="l")
-# The same along depth:
-plot(d$mvbs[,2,1], d$pszx[,2,1], type="l")
-
-summary(c(d$mvbs))
-summary(c(d$vbsc))
-
-# Plot pixel positions (chosing the first frequency, since all beams have the same positions):
-plot(d$psyx[,,1], d$pszx[,,1])
-
+# Plot a 3-D echogram:
+p <- cplot3d.event(event=TSDpath, t=1)
 
 
